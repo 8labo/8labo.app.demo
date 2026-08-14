@@ -69,20 +69,30 @@ window.EIGHTLABO_CONFIG = {
       const box = document.createElement('div');
       box.setAttribute('aria-label','データ操作');
       box.innerHTML = `<a href="data-import.html?type=${info.type}">${info.label}</a><a href="data-export.html">データ管理</a>`;
-      const linkCss = 'display:inline-flex;align-items:center;min-height:28px;padding:5px 8px;border-radius:8px;font-size:9px;font-weight:800;color:inherit;text-decoration:none;white-space:nowrap;';
+      const linkCss = 'display:inline-flex;align-items:center;justify-content:center;min-height:30px;padding:6px 10px;border-radius:8px;font-size:9px;font-weight:800;text-decoration:none;white-space:nowrap;';
       box.querySelectorAll('a').forEach(a=>a.style.cssText=linkCss);
 
       const hero = document.querySelector('.hero');
       if (hero) {
         hero.style.position = 'relative';
-        box.style.cssText = 'position:absolute;right:12px;bottom:10px;display:flex;gap:4px;z-index:2;color:#e5e7eb;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:2px;backdrop-filter:blur(6px);';
-        box.querySelectorAll('a').forEach(a=>{a.style.background='transparent';a.style.color='#e5e7eb'});
+        box.style.cssText = 'position:absolute;right:12px;bottom:10px;display:flex;gap:8px;z-index:2;';
+        box.querySelectorAll('a').forEach(a=>{
+          a.style.background='rgba(255,255,255,.10)';
+          a.style.color='#f3f4f6';
+          a.style.border='1px solid rgba(255,255,255,.28)';
+          a.style.boxShadow='0 1px 2px rgba(0,0,0,.08)';
+          a.style.backdropFilter='blur(6px)';
+        });
         hero.appendChild(box);
       } else {
         const header = document.querySelector('header');
         if (!header) return;
-        box.style.cssText = 'display:flex;gap:4px;margin-left:auto;margin-right:10px;color:#6b7280;';
-        box.querySelectorAll('a').forEach(a=>{a.style.border='1px solid rgba(107,114,128,.18)';a.style.background='rgba(255,255,255,.72)'});
+        box.style.cssText = 'display:flex;gap:8px;margin-left:auto;margin-right:10px;color:#6b7280;';
+        box.querySelectorAll('a').forEach(a=>{
+          a.style.border='1px solid rgba(107,114,128,.25)';
+          a.style.background='rgba(255,255,255,.78)';
+          a.style.color='#4b5563';
+        });
         const back = header.querySelector('a');
         header.insertBefore(box, back || null);
       }
