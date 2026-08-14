@@ -89,6 +89,14 @@ window.EIGHTLABO_CONFIG = {
     } catch (_) {}
   };
 
-  const init = () => { wireServiceLinks(); addStaffAdminEntry(); addContextDataTools(); };
+  const loadWebsitePhotoEditor = () => {
+    if ((location.pathname.split('/').pop() || '') !== 'website-admin.html') return;
+    const script = document.createElement('script');
+    script.src = 'photo-editor-v2.js?v=2';
+    script.defer = true;
+    document.head.appendChild(script);
+  };
+
+  const init = () => { wireServiceLinks(); addStaffAdminEntry(); addContextDataTools(); loadWebsitePhotoEditor(); };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();
