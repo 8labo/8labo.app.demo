@@ -6,7 +6,13 @@
     home_activity_school_image:{desktop:1.40,mobile:1.13},
     home_activity_sports_image:{desktop:1.40,mobile:1.13},
     home_activity_community_image:{desktop:1.40,mobile:1.13},
-    academy_hero_image:{desktop:4/3,mobile:4/3}
+    home_activity_event_image:{desktop:1.40,mobile:1.13},
+    academy_hero_image:{desktop:4/3,mobile:4/3},
+    academy_activity_1_image:{desktop:4/3,mobile:4/3},
+    academy_activity_2_image:{desktop:4/3,mobile:4/3},
+    academy_activity_3_image:{desktop:4/3,mobile:4/3},
+    academy_activity_4_image:{desktop:4/3,mobile:4/3},
+    academy_activity_5_image:{desktop:1.20,mobile:16/10}
   };
   const clamp=(v,min,max)=>Math.min(max,Math.max(min,v));
   let key=null,device='desktop',row=null;
@@ -38,6 +44,18 @@
     document.head.appendChild(s);
   }
 
+  function patchPhotoSlots(){
+    try{
+      if(typeof labels!=='undefined') labels.academy_activity_5_image='ACADEMY｜活動風景5';
+      if(typeof ratios!=='undefined') ratios.academy_activity_5_image={desktop:'6/5',mobile:'16/10'};
+      const select=document.getElementById('mediaSlot');
+      if(select&&!select.querySelector('option[value="academy_activity_5_image"]')){
+        const o=document.createElement('option');o.value='academy_activity_5_image';o.textContent='ACADEMY｜活動風景5';select.appendChild(o);
+      }
+      if(typeof renderMedia==='function') renderMedia();
+    }catch(_){}
+  }
+
   function makeEditor(){
     const mediaPanel=document.getElementById('media');
     const leftCard=mediaPanel?.querySelector('.grid>.card:first-child');
@@ -67,7 +85,7 @@
   function nudge(dir){const d=draft[device],step=3;if(dir==='left')d.x=clamp(d.x-step,0,100);if(dir==='right')d.x=clamp(d.x+step,0,100);if(dir==='up')d.y=clamp(d.y-step,0,100);if(dir==='down')d.y=clamp(d.y+step,0,100);if(dir==='center'){d.x=50;d.y=50}clearSaved();renderFrame()}
   function changeZoom(delta){const d=draft[device];d.z=clamp(Math.round((d.z+delta)*100)/100,1,3);clearSaved();renderFrame()}
   function ratio(){return SLOT_RATIOS[key]?.[device]||4/3}
-  function ratioText(r){if(Math.abs(r-4/3)<.02)return'4:3';if(Math.abs(r-16/10)<.02)return'16:10';return `${r.toFixed(2)}:1`}
+  function ratioText(r){if(Math.abs(r-4/3)<.02)return'4:3';if(Math.abs(r-16/10)<.02)return'16:10';if(Math.abs(r-1.2)<.02)return'6:5';return `${r.toFixed(2)}:1`}
   function render(){const el=document.getElementById('dragCropEditor');if(!el||!row)return;const r=ratio();el.querySelector('#dragFrame').style.setProperty('--slot-ratio',r);el.querySelector('#slotRatioNote').textContent=`${device==='desktop'?'PC':'スマホ'}表示｜掲載時の基準比率 ${ratioText(r)}`;renderFrame()}
   function renderFrame(){const el=document.getElementById('dragCropEditor'),img=el?.querySelector('#dragImage');if(!img||!row)return;const d=draft[device];img.src=String(row.content_value);img.style.objectPosition=`${d.x}% ${d.y}%`;img.style.transform=`scale(${d.z})`;el.querySelector('#zoomReadout').textContent=d.z.toFixed(2)+'×';el.querySelector('#positionReadout').textContent=`横 ${Math.round(d.x)}% ／ 縦 ${Math.round(d.y)}%`}
 
@@ -75,6 +93,6 @@
 
   function open(k){const x=contents.find(v=>v.content_key===k);if(!x?.content_value)return;key=k;row=x;device='desktop';draft={desktop:{x:Number(x.desktop_position_x??50),y:Number(x.desktop_position_y??50),z:Number(x.desktop_zoom??1.08)},mobile:{x:Number(x.mobile_position_x??50),y:Number(x.mobile_position_y??50),z:Number(x.mobile_zoom??1.08)}};const el=document.getElementById('dragCropEditor')||makeEditor();if(!el)return;el.classList.remove('hidden');el.querySelectorAll('[data-drag-device]').forEach(b=>b.classList.toggle('active',b.dataset.dragDevice==='desktop'));clearSaved();render();el.scrollIntoView({behavior:'smooth',block:'nearest'})}
 
-  function init(){if(!document.getElementById('media'))return;css();makeEditor();let tries=0;const timer=setInterval(()=>{tries++;if(typeof window.openCrop==='function'&&typeof contents!=='undefined'){window.openCrop=open;clearInterval(timer)}else if(tries>60)clearInterval(timer)},100)}
+  function init(){if(!document.getElementById('media'))return;css();patchPhotoSlots();makeEditor();let tries=0;const timer=setInterval(()=>{tries++;patchPhotoSlots();if(typeof window.openCrop==='function'&&typeof contents!=='undefined'){window.openCrop=open;clearInterval(timer)}else if(tries>60)clearInterval(timer)},100)}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
