@@ -51,8 +51,8 @@
     frame.addEventListener('pointerdown',e=>{dragging=true;lastX=e.clientX;lastY=e.clientY;frame.classList.add('dragging');frame.setPointerCapture?.(e.pointerId)});
     frame.addEventListener('pointermove',e=>{if(!dragging)return;const r=frame.getBoundingClientRect(),dx=e.clientX-lastX,dy=e.clientY-lastY;lastX=e.clientX;lastY=e.clientY;const d=draft[device];d.x=clamp(d.x-(dx/r.width)*100/Math.max(1,d.z),0,100);d.y=clamp(d.y-(dy/r.height)*100/Math.max(1,d.z),0,100);renderFrame()});
     const stop=e=>{dragging=false;frame.classList.remove('dragging');try{frame.releasePointerCapture?.(e.pointerId)}catch(_){}};frame.addEventListener('pointerup',stop);frame.addEventListener('pointercancel',stop);
-    frame.addEventListener('wheel',e=>{e.preventDefault();changeZoom(e.deltaY<0?.1:-.1)},{passive:false});
-    el.querySelector('#zoomIn').onclick=()=>changeZoom(.1);el.querySelector('#zoomOut').onclick=()=>changeZoom(-.1);
+    frame.addEventListener('wheel',e=>{e.preventDefault();changeZoom(e.deltaY < 0 ? 0.1 : -0.1)},{passive:false});
+    el.querySelector('#zoomIn').onclick=()=>changeZoom(0.1);el.querySelector('#zoomOut').onclick=()=>changeZoom(-0.1);
     el.querySelector('#dragReset').onclick=()=>{draft[device]={x:50,y:50,z:1};renderFrame()};
     el.querySelector('#dragSave').onclick=save;
   }
