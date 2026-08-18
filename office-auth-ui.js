@@ -9,7 +9,7 @@
     const box=document.createElement('div');
     box.id='officeAuthInviteBox';
     box.style.cssText='margin:14px 0;padding:14px;border:1px solid #e5e7eb;border-radius:14px;background:#f8fafc;';
-    box.innerHTML='<div style="font-size:10px;font-weight:900;margin-bottom:7px">ログイン認証</div><div id="officeAuthCurrent" style="font-size:10px;color:#64748b;margin-bottom:9px">事務局アカウントを選択してください。</div><div style="display:flex;gap:8px;flex-wrap:wrap"><input id="officeLoginEmail" type="email" autocomplete="off" placeholder="例：8labo.academy+01@gmail.com" style="flex:1;min-width:240px;border:1px solid #d1d5db;border-radius:10px;padding:10px;background:#fff;color:#111827"><button id="officeInviteBtn" type="button" style="border:0;border-radius:10px;padding:10px 13px;background:#111827;color:#fff;font-weight:900;font-size:10px;cursor:pointer">招待メールを送信</button></div><div id="officeInviteMsg" style="font-size:9px;line-height:1.6;margin-top:8px;color:#64748b">招待先でパスワードを設定すると、８LABO IDを発行せず、この事務局アカウントだけに接続されます。</div>';
+    box.innerHTML='<div style="font-size:10px;font-weight:900;margin-bottom:7px">ログイン認証</div><div id="officeAuthCurrent" style="font-size:10px;color:#64748b;margin-bottom:9px">事務局アカウントを選択してください。</div><div style="display:grid;grid-template-columns:minmax(220px,1fr) minmax(180px,.7fr) auto;gap:8px;align-items:end"><div><div style="font-size:9px;font-weight:800;color:#64748b;margin-bottom:5px">ログインメール</div><input id="officeLoginEmail" type="email" autocomplete="off" placeholder="8labo.academy+01@gmail.com" style="width:100%;border:1px solid #d1d5db;border-radius:10px;padding:10px;background:#fff;color:#111827"></div><div><div style="font-size:9px;font-weight:800;color:#64748b;margin-bottom:5px">初期パスワード</div><input id="officeInitialPassword" type="password" autocomplete="new-password" minlength="8" placeholder="8文字以上" style="width:100%;border:1px solid #d1d5db;border-radius:10px;padding:10px;background:#fff;color:#111827"></div><button id="officeProvisionBtn" type="button" style="border:0;border-radius:10px;padding:10px 13px;background:#111827;color:#fff;font-weight:900;font-size:10px;cursor:pointer;white-space:nowrap">アカウントを有効化</button></div><div id="officeInviteMsg" style="font-size:9px;line-height:1.6;margin-top:8px;color:#64748b">８LABO IDや人物データは作成せず、この事務局アカウント専用のログインを設定します。すでに招待済みの事務局01も、ここでパスワードを設定し直せます。</div>';
     const firstRow=editor.querySelector('.row');
     if(firstRow) firstRow.insertAdjacentElement('beforebegin',box); else editor.prepend(box);
 
@@ -21,41 +21,37 @@
       const title=$('title')?.textContent?.trim();
       const a=cache.find(x=>x.display_name===title);
       if(!a)return;
-      const input=$('officeLoginEmail'),btn=$('officeInviteBtn');
-      input.disabled=!!a.auth_user_id;
-      btn.disabled=!!a.auth_user_id;
-      btn.style.opacity=a.auth_user_id?'.45':'1';
+      const input=$('officeLoginEmail'),pwd=$('officeInitialPassword'),btn=$('officeProvisionBtn');
       if(document.activeElement!==input) input.value=a.login_email||'';
-      $('officeAuthCurrent').textContent=a.auth_user_id?`接続済み：${a.login_email||'メール不明'}`:'未接続：メールアドレスを入力して招待してください。';
-      btn.textContent=a.auth_user_id?'接続済み':'招待メールを送信';
+      if(document.activeElement!==pwd) pwd.value='';
+      input.disabled=false; pwd.disabled=false; btn.disabled=false; btn.style.opacity='1';
+      $('officeAuthCurrent').textContent=a.auth_user_id?`接続済み：${a.login_email||'メール不明'}（パスワード再設定可能）`:'未接続：メールアドレスと初期パスワードを設定してください。';
+      btn.textContent=a.auth_user_id?'パスワードを設定・更新':'アカウントを有効化';
     }
 
     const accountList=$('accounts');
-    if(accountList) accountList.addEventListener('click',e=>{
-      if(e.target.closest('.account')) setTimeout(refresh,80);
-    });
+    if(accountList) accountList.addEventListener('click',e=>{if(e.target.closest('.account'))setTimeout(refresh,80)});
     setTimeout(refresh,350);
 
-    $('officeInviteBtn').onclick=async()=>{
+    $('officeProvisionBtn').onclick=async()=>{
       const title=$('title')?.textContent?.trim();
       const a=cache.find(x=>x.display_name===title);
       const email=$('officeLoginEmail').value.trim().toLowerCase();
-      if(!a||!email){$('officeInviteMsg').textContent='事務局アカウントを選択し、メールアドレスを入力してください。';return;}
-      if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){$('officeInviteMsg').textContent='メールアドレスの形式をご確認ください。';return;}
-      const btn=$('officeInviteBtn'); btn.disabled=true; btn.textContent='送信中…';
+      const password=$('officeInitialPassword').value;
+      const msg=$('officeInviteMsg');
+      if(!a||!email){msg.textContent='事務局アカウントを選択し、メールアドレスを入力してください。';msg.style.color='#991b1b';return;}
+      if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){msg.textContent='メールアドレスの形式をご確認ください。';msg.style.color='#991b1b';return;}
+      if(password.length<8){msg.textContent='初期パスワードは8文字以上で設定してください。';msg.style.color='#991b1b';return;}
+      const btn=$('officeProvisionBtn');btn.disabled=true;btn.textContent='設定中…';
       const {data:{session}}=await sb.auth.getSession();
       try{
-        const res=await fetch(`${cfg.supabaseUrl}/functions/v1/invite-office-account`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${session?.access_token||''}`,'apikey':cfg.supabasePublishableKey},body:JSON.stringify({office_account_id:a.id,email})});
+        const res=await fetch(`${cfg.supabaseUrl}/functions/v1/provision-office-account`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${session?.access_token||''}`,'apikey':cfg.supabasePublishableKey},body:JSON.stringify({office_account_id:a.id,email,password})});
         const out=await res.json();
-        if(!res.ok)throw new Error(out.error||'招待メールを送信できませんでした。');
-        $('officeInviteMsg').textContent=`${email} に招待メールを送信しました。メール内のリンクからパスワードを設定してください。`;
-        $('officeInviteMsg').style.color='#166534';
+        if(!res.ok)throw new Error(out.error||'ログインアカウントを設定できませんでした。');
+        msg.textContent=`${email} の事務局ログインを設定しました。ポータルのログインから、このメールアドレスと設定したパスワードでログインできます。`;
+        msg.style.color='#166534';
         await refresh();
-      }catch(e){
-        $('officeInviteMsg').textContent=e.message||String(e);
-        $('officeInviteMsg').style.color='#991b1b';
-        btn.disabled=false;btn.textContent='招待メールを送信';
-      }
+      }catch(e){msg.textContent=e.message||String(e);msg.style.color='#991b1b';btn.disabled=false;btn.textContent=a.auth_user_id?'パスワードを設定・更新':'アカウントを有効化';}
     };
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
