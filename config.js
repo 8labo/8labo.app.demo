@@ -123,7 +123,7 @@ window.EIGHTLABO_CONFIG = {
 
   const loadOfficeAuthUI = () => {
     if ((location.pathname.split('/').pop() || '') !== 'office-accounts.html') return;
-    const script = document.createElement('script'); script.src = 'office-auth-ui.js?v=2'; script.defer = true; document.head.appendChild(script);
+    const script = document.createElement('script'); script.src = 'office-auth-ui.js?v=3'; script.defer = true; document.head.appendChild(script);
   };
 
   const init = () => { wireServiceLinks(); addStaffAdminEntry(); addContextDataTools(); addPortalAuthStatus(); loadWebsitePhotoEditor(); loadOfficeAuthUI(); };
