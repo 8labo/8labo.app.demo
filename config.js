@@ -9,7 +9,6 @@ window.EIGHTLABO_CONFIG = {
     PORTAL: 'https://8labo.github.io/8labo.app.demo/staff.html',
     COMMON: 'https://8labo.github.io/8labo.app.demo/admin.html',
     EXPORT: 'https://8labo.github.io/8labo.app.demo/data-export.html',
-    PERSON_CREATE: 'https://8labo.github.io/8labo.app.demo/person-create.html',
     ACADEMY: 'https://8labo.github.io/8labo-academy.app.demo2/admin.html',
     BIZFIT: 'https://8labo.github.io/bizfit-club.app.demo2/admin.html'
   }
@@ -68,20 +67,19 @@ window.EIGHTLABO_CONFIG = {
       if (!isAdmin) return;
       const box = document.createElement('div');
       box.setAttribute('aria-label','データ操作');
-      const createLink = path === 'portal-admin.html' ? '<a href="person-create.html">人物を新規作成</a>' : '';
-      box.innerHTML = `${createLink}<a href="data-import.html?type=${info.type}">${info.label}</a><a href="data-export.html">データ管理</a>`;
+      box.innerHTML = `<a href="data-import.html?type=${info.type}">${info.label}</a><a href="data-export.html">データ管理</a>`;
       const linkCss = 'display:inline-flex;align-items:center;justify-content:center;min-height:30px;padding:6px 10px;border-radius:8px;font-size:9px;font-weight:800;text-decoration:none;white-space:nowrap;';
       box.querySelectorAll('a').forEach(a=>a.style.cssText=linkCss);
       const hero = document.querySelector('.hero');
       if (hero) {
         hero.style.position = 'relative';
-        box.style.cssText = 'position:absolute;right:12px;bottom:10px;display:flex;gap:8px;z-index:2;flex-wrap:wrap;justify-content:flex-end;';
+        box.style.cssText = 'position:absolute;right:12px;bottom:10px;display:flex;gap:8px;z-index:2;';
         box.querySelectorAll('a').forEach(a=>{a.style.background='rgba(255,255,255,.10)';a.style.color='#f3f4f6';a.style.border='1px solid rgba(255,255,255,.28)';a.style.boxShadow='0 1px 2px rgba(0,0,0,.08)';a.style.backdropFilter='blur(6px)';});
         hero.appendChild(box);
       } else {
         const header = document.querySelector('header');
         if (!header) return;
-        box.style.cssText = 'display:flex;gap:8px;margin-left:auto;margin-right:10px;color:#6b7280;flex-wrap:wrap;';
+        box.style.cssText = 'display:flex;gap:8px;margin-left:auto;margin-right:10px;color:#6b7280;';
         box.querySelectorAll('a').forEach(a=>{a.style.border='1px solid rgba(107,114,128,.25)';a.style.background='rgba(255,255,255,.78)';a.style.color='#4b5563';});
         const back = header.querySelector('a');
         header.insertBefore(box, back || null);
@@ -128,6 +126,17 @@ window.EIGHTLABO_CONFIG = {
     const script = document.createElement('script'); script.src = 'office-auth-ui.js?v=3'; script.defer = true; document.head.appendChild(script);
   };
 
-  const init = () => { wireServiceLinks(); addStaffAdminEntry(); addContextDataTools(); addPortalAuthStatus(); loadWebsitePhotoEditor(); loadOfficeAuthUI(); };
+  const loadPortalContextUI = () => {
+    const path = location.pathname.split('/').pop() || 'index.html';
+    if (!['','index.html'].includes(path)) return;
+    const script = document.createElement('script'); script.src = 'portal-context-ui.js?v=1'; script.defer = true; document.head.appendChild(script);
+  };
+
+  const loadStaffPermissionUI = () => {
+    if ((location.pathname.split('/').pop() || '') !== 'staff.html') return;
+    const script = document.createElement('script'); script.src = 'staff-permission-ui.js?v=1'; script.defer = true; document.head.appendChild(script);
+  };
+
+  const init = () => { wireServiceLinks(); addStaffAdminEntry(); addContextDataTools(); addPortalAuthStatus(); loadWebsitePhotoEditor(); loadOfficeAuthUI(); loadPortalContextUI(); loadStaffPermissionUI(); };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();
