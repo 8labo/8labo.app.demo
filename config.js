@@ -137,6 +137,11 @@ window.EIGHTLABO_CONFIG = {
     const script = document.createElement('script'); script.src = 'staff-permission-ui.js?v=1'; script.defer = true; document.head.appendChild(script);
   };
 
-  const init = () => { wireServiceLinks(); addStaffAdminEntry(); addContextDataTools(); addPortalAuthStatus(); loadWebsitePhotoEditor(); loadOfficeAuthUI(); loadPortalContextUI(); loadStaffPermissionUI(); };
+  const loadShiftResponseUI = () => {
+    if ((location.pathname.split('/').pop() || '') !== 'shift-v2.html') return;
+    const script = document.createElement('script'); script.src = 'shift-response-ui-v2.js?v=1'; document.body.appendChild(script);
+  };
+
+  const init = () => { wireServiceLinks(); addStaffAdminEntry(); addContextDataTools(); addPortalAuthStatus(); loadWebsitePhotoEditor(); loadOfficeAuthUI(); loadPortalContextUI(); loadStaffPermissionUI(); loadShiftResponseUI(); };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();
