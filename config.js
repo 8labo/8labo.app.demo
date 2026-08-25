@@ -122,6 +122,12 @@ window.EIGHTLABO_CONFIG = {
     const script = document.createElement('script'); script.src = 'photo-editor-v2.js?v=3'; script.defer = true; document.head.appendChild(script);
   };
 
+  const loadWebsiteVoiceUI = () => {
+    const path = location.pathname.split('/').pop() || '';
+    if (!['website-admin.html','website-admin-v2.html'].includes(path)) return;
+    const script = document.createElement('script'); script.src = 'website-voice-ui.js?v=1'; script.defer = true; document.head.appendChild(script);
+  };
+
   const loadOfficeAuthUI = () => {
     if ((location.pathname.split('/').pop() || '') !== 'office-accounts.html') return;
     const script = document.createElement('script'); script.src = 'office-auth-ui.js?v=3'; script.defer = true; document.head.appendChild(script);
@@ -143,6 +149,6 @@ window.EIGHTLABO_CONFIG = {
     const script = document.createElement('script'); script.src = 'shift-response-ui-v2.js?v=1'; document.body.appendChild(script);
   };
 
-  const init = () => { wireServiceLinks(); addStaffAdminEntry(); addContextDataTools(); addPortalAuthStatus(); loadWebsitePhotoEditor(); loadOfficeAuthUI(); loadPortalContextUI(); loadStaffPermissionUI(); loadShiftResponseUI(); };
+  const init = () => { wireServiceLinks(); addStaffAdminEntry(); addContextDataTools(); addPortalAuthStatus(); loadWebsitePhotoEditor(); loadWebsiteVoiceUI(); loadOfficeAuthUI(); loadPortalContextUI(); loadStaffPermissionUI(); loadShiftResponseUI(); };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();
