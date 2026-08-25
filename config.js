@@ -117,8 +117,9 @@ window.EIGHTLABO_CONFIG = {
   };
 
   const loadWebsitePhotoEditor = () => {
-    if ((location.pathname.split('/').pop() || '') !== 'website-admin.html') return;
-    const script = document.createElement('script'); script.src = 'photo-editor-v2.js?v=2'; script.defer = true; document.head.appendChild(script);
+    const path = location.pathname.split('/').pop() || '';
+    if (!['website-admin.html','website-admin-v2.html'].includes(path)) return;
+    const script = document.createElement('script'); script.src = 'photo-editor-v2.js?v=3'; script.defer = true; document.head.appendChild(script);
   };
 
   const loadOfficeAuthUI = () => {
