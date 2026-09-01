@@ -5,9 +5,38 @@ window.EIGHTLABO_CONFIG = {
   adminUrls: { PORTAL: 'https://8labo.github.io/8labo.app.demo/staff.html', COMMON: 'https://8labo.github.io/8labo.app.demo/admin.html', EXPORT: 'https://8labo.github.io/8labo.app.demo/data-export.html', ACADEMY: 'https://8labo.github.io/8labo-academy.app.demo2/admin.html', BIZFIT: 'https://8labo.github.io/bizfit-club.app.demo2/admin.html' }
 };
 (function(){
+ const p=location.pathname.split('/').pop()||'';
+ if(['website-admin.html','website-admin-v2.html'].includes(p)&&window.supabase?.createClient&&!window.__8LABO_WEBSITE_STORAGE_PATCHED){
+   window.__8LABO_WEBSITE_STORAGE_PATCHED=true;
+   window.__websiteMediaLibraryReady=false;
+   const originalCreate=window.supabase.createClient;
+   window.supabase.createClient=function(...args){
+     const client=originalCreate.apply(this,args);
+     try{
+       const originalFrom=client.storage.from.bind(client.storage);
+       client.storage.from=function(bucket){
+         const api=originalFrom(bucket);
+         if(bucket==='website-media'&&api&&typeof api.list==='function'){
+           const originalList=api.list.bind(api);
+           api.list=async function(path='',options={}){
+             if(!window.__websiteMediaLibraryReady)return {data:[],error:null};
+             const opts={...(options||{})};
+             opts.limit=Math.min(Number(opts.limit)||20,20);
+             if(opts.offset==null)opts.offset=0;
+             return originalList(path,opts);
+           };
+         }
+         return api;
+       };
+     }catch(_){}
+     return client;
+   };
+ }
+})();
+(function(){
  const wireServiceLinks=()=>{const urls=window.EIGHTLABO_CONFIG?.serviceUrls;if(!urls)return;document.querySelectorAll('[data-code]').forEach(card=>{const code=card.dataset.code,url=urls[code];if(!url)return;card.setAttribute('role','link');card.setAttribute('tabindex','0');card.setAttribute('aria-label',`${code}を開く`);const open=()=>location.href=url;card.addEventListener('click',open);card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open()}})})};
  const addStaffAdminEntry=async()=>{try{if(!window.supabase)return;const c=window.EIGHTLABO_CONFIG,sb=window.supabase.createClient(c.supabaseUrl,c.supabasePublishableKey),{data:{session}}=await sb.auth.getSession();if(!session)return;const{data:id,error}=await sb.rpc('current_staff_id');if(error||!id)return;const a=document.createElement('a');a.href=c.adminUrls.PORTAL;a.textContent='管理';a.style.cssText='position:fixed;right:12px;bottom:10px;z-index:20;font-size:9px;font-weight:700;color:#9ca3af;text-decoration:none;opacity:.72;padding:5px 7px;border-radius:8px;background:rgba(255,255,255,.78);border:1px solid rgba(229,231,235,.8)';document.body.appendChild(a)}catch(_){}};
- const loadWebsitePhotoEditor=()=>{const p=location.pathname.split('/').pop()||'';if(!['website-admin.html','website-admin-v2.html'].includes(p))return;['photo-editor-v2.js?v=7','photo-library-v2.js?v=1'].forEach(src=>{const s=document.createElement('script');s.src=src;s.defer=true;document.head.appendChild(s)})};
+ const loadWebsitePhotoEditor=()=>{const p=location.pathname.split('/').pop()||'';if(!['website-admin.html','website-admin-v2.html'].includes(p))return;['photo-editor-v2.js?v=7','photo-library-v2.js?v=1','website-library-pager.js?v=1'].forEach(src=>{const s=document.createElement('script');s.src=src;s.defer=true;document.head.appendChild(s)})};
  const loadWebsiteVoiceUI=()=>{const p=location.pathname.split('/').pop()||'';if(!['website-admin.html','website-admin-v2.html'].includes(p))return;const s=document.createElement('script');s.src='website-voice-ui.js?v=1';s.defer=true;document.head.appendChild(s)};
  const loadOfficeAuthUI=()=>{if((location.pathname.split('/').pop()||'')!=='office-accounts.html')return;const s=document.createElement('script');s.src='office-auth-ui.js?v=3';s.defer=true;document.head.appendChild(s)};
  const loadPortalContextUI=()=>{const p=location.pathname.split('/').pop()||'index.html';if(!['','index.html'].includes(p))return;const s=document.createElement('script');s.src='portal-context-ui.js?v=1';s.defer=true;document.head.appendChild(s)};
